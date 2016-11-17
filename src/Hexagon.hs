@@ -63,6 +63,28 @@ axialColumn = fst . axialCoords
 axialRow :: Hex a -> a
 axialRow = snd . axialCoords
 
+-- ** Offset coordinates
+
+data Parity = Odd | Even
+    deriving (Eq, Show)
+
+parity :: Integral a => a -> a
+parity n
+    | odd n = 1
+    | otherwise = 0
+
+offsetCoords :: Integral a => Parity -> Hex a -> (a, a)
+offsetCoords par (Hex x y z) =
+    case par of
+        Even -> (x, z + (x + parity x) `div` 2)
+        Odd -> (x, z + (x - parity x) `div` 2)
+
+fromOffset :: Integral a => Parity -> (a, a) -> Hex a
+fromOffset par (col, row) =
+    case par of
+        Even -> fromAxial (col, row - (col + parity col) `div` 2)
+        Odd -> fromAxial (col, row - (col - parity col) `div` 2)
+
 -- * Neighbors
 
 top :: Num a => Hex a -> Hex a

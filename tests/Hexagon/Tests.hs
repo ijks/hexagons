@@ -19,6 +19,8 @@ tests = testGroup "Hexagon"
         (cubeIdentity :: Hex Int -> Bool)
     , testProperty "conversion to and then from axial is idempotent"
         (axialIdentity :: Hex Int -> Bool)
+    , testProperty "conversion to and then from offset is idempotent"
+        (offsetIdentity :: Parity -> Hex Int -> Bool)
     , testProperty "axial coords ensure planar hexes"
         (axialPlanar :: (Int, Int) -> Bool)
     , testProperty "neighbors of a planar hex are planar"
@@ -33,6 +35,12 @@ cubeIdentity = checkIdentity cubeCoords fromCube
 
 axialIdentity :: (Eq a, Num a, Show a) => Hex a -> Bool
 axialIdentity = checkIdentity axialCoords fromAxial
+
+instance Arbitrary Parity where
+    arbitrary = elements [Odd, Even]
+
+offsetIdentity :: (Eq a, Integral a, Show a) => Parity -> Hex a -> Bool
+offsetIdentity par = checkIdentity (offsetCoords par) (fromOffset par)
 
 planar :: (Eq a, Num a) => Hex a -> Bool
 planar (Hex x y z) = x + y + z == 0
