@@ -11,9 +11,15 @@ import Test.Tasty.QuickCheck
 
 import Hexagon
 
+import Util
+
 tests :: TestTree
 tests = testGroup "Hexagon"
-    [ testProperty "axial coords ensure planar hexes"
+    [ testProperty "conversion to and then from cube is idempotent"
+        (cubeIdentity :: Hex Int -> Bool)
+    , testProperty "conversion to and then from axial is idempotent"
+        (axialIdentity :: Hex Int -> Bool)
+    , testProperty "axial coords ensure planar hexes"
         (axialPlanar :: (Int, Int) -> Bool)
     , testProperty "neighbors of a planar hex are planar"
         (neighborsPlanar :: Hex Int -> Bool)
@@ -21,6 +27,12 @@ tests = testGroup "Hexagon"
 
 instance (Arbitrary a, Num a) => Arbitrary (Hex a) where
     arbitrary = fromAxial <$> arbitrary
+
+cubeIdentity :: (Eq a, Num a, Show a) => Hex a -> Bool
+cubeIdentity = checkIdentity cubeCoords fromCube
+
+axialIdentity :: (Eq a, Num a, Show a) => Hex a -> Bool
+axialIdentity = checkIdentity axialCoords fromAxial
 
 planar :: (Eq a, Num a) => Hex a -> Bool
 planar (Hex x y z) = x + y + z == 0
