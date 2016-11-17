@@ -54,14 +54,30 @@ axialColumn = fst . axialCoords
 axialRow :: Hex a -> a
 axialRow = snd . axialCoords
 
+top :: Num a => Hex a -> Hex a
+top = (+) $ Hex 0 1 (-1)
+
+topLeft :: Num a => Hex a -> Hex a
+topLeft = (+) $ Hex (-1) 1 0
+
+topRight :: Num a => Hex a -> Hex a
+topRight = (+) $ Hex 1 0 (-1)
+
+bottom :: Num a => Hex a -> Hex a
+bottom = (+) $ Hex 0 (-1) 1
+
+bottomLeft :: Num a => Hex a -> Hex a
+bottomLeft = (+) $ Hex (-1) 0 1
+
+bottomRight :: Num a => Hex a -> Hex a
+bottomRight = (+) $ Hex 1 (-1) 0
+
 neighbors :: Num a => Hex a -> [Hex a]
-neighbors h = map (h +) directions
-    where
-        directions = fromCube <$>
-            [ (1, -1, 0)
-            , (1, 0, -1)
-            , (0, 1, -1)
-            , (-1, 1, 0)
-            , (-1, 0, 1)
-            , (0, -1, 1)
-            ]
+neighbors h = map ($ h)
+    [ top
+    , topLeft
+    , topRight
+    , bottom
+    , bottomLeft
+    , bottomRight
+    ]
