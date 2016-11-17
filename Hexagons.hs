@@ -81,3 +81,6 @@ neighbors h = map ($ h)
     , bottomLeft
     , bottomRight
     ]
+
+distance :: Num a => Ord a => Hex a -> Hex a -> a
+distance a b = foldr max 0 $ a - b
