@@ -1,6 +1,6 @@
 module Hexagon where
 
--- | Based on http://www.redblobgames.com/grids/hexagons/
+-- Based on http://www.redblobgames.com/grids/hexagons/
 
 import Data.Monoid ((<>))
 
