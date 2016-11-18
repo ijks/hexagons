@@ -106,7 +106,7 @@ bottomRight :: Num a => Hex a -> Hex a
 bottomRight = (+) $ Hex 1 0
 
 -- | All the neighbors of a hex, excluding the hex itself.
-neighbors :: Num a => Hex a -> [Hex a]
+neighbors :: Integral a => Hex a -> [Hex a]
 neighbors h = map ($ h)
     [ top
     , topLeft
