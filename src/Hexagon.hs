@@ -6,24 +6,23 @@ import Data.Monoid ((<>))
 
 -- | The coordinates of a hexagon in a grid.
 data Hex a = Hex
-    { cubeX :: a
-    , cubeY :: a
-    , cubeZ :: a
+    { column :: a
+    , row :: a
     } deriving (Show, Eq, Ord)
 
 instance Functor Hex where
-    fmap f (Hex x y z) = Hex (f x) (f y) (f z)
+    fmap f (Hex col row) = Hex (f col) (f row)
 
 instance Applicative Hex where
-    pure v = Hex v v v
-    (Hex f g h) <*> (Hex x y z) = Hex (f x) (g y) (h z)
+    pure v = Hex v v
+    (Hex f g) <*> (Hex col row) = Hex (f col) (g row)
 
 instance Monoid a => Monoid (Hex a) where
     mempty = pure mempty
     mappend a b = mappend <$> a <*> b
 
 instance Foldable Hex where
-    foldMap f (Hex x y z) = (f x) <> (f y) <> (f z)
+    foldMap f (Hex col row) = (f col) <> (f row)
 
 instance Num a => Num (Hex a) where
     a + b = (+) <$> a <*> b
@@ -39,29 +38,30 @@ instance Fractional a => Fractional (Hex a) where
 
 -- * Coordinate Systems
 
+-- | Get the axial coordinates of a hex.
+axialCoords :: Hex a -> (a, a)
+axialCoords (Hex col row) = (col, row)
+
+-- | Create a hex from a tuple of axial coordinates.
+fromAxial :: (a, a) -> Hex a
+fromAxial (col, row) = Hex col row
+
 -- | Get the cube coordinates of a hex.
-cubeCoords :: Hex a -> (a, a, a)
-cubeCoords (Hex x y z) = (x, y, z)
+cubeCoords :: Num a => Hex a -> (a, a, a)
+cubeCoords (Hex col row) = (col, -col - row, row)
 
 -- | Create a hex from a tuple of cube coordinates.
 fromCube :: (a, a, a) -> Hex a
-fromCube (x, y, z) = Hex x y z
+fromCube (x, y, z) = Hex x z
 
--- | Get the axial coordinates of a hex.
-axialCoords :: Hex a -> (a, a)
-axialCoords (Hex x _ z) = (x, z)
+cubeX :: Num a => Hex a -> a
+cubeX h = case cubeCoords h of (x, _, _) -> x
 
--- | Create a hex from a tuple of axial coordinates.
-fromAxial :: Num a => (a, a) -> Hex a
-fromAxial (col, row) = Hex col (-col - row) row
+cubeY :: Num a => Hex a -> a
+cubeY h = case cubeCoords h of (_, y, _) -> y
 
--- | Get the axial columnf of a hex.
-axialColumn :: Hex a -> a
-axialColumn = fst . axialCoords
-
--- | Get the axial row of a hex.
-axialRow :: Hex a -> a
-axialRow = snd . axialCoords
+cubeZ :: Num a => Hex a -> a
+cubeZ h = case cubeCoords h of (_, _, z) -> z
 
 -- ** Offset coordinates
 
@@ -74,10 +74,10 @@ parity n
     | otherwise = 0
 
 offsetCoords :: Integral a => Parity -> Hex a -> (a, a)
-offsetCoords par (Hex x y z) =
+offsetCoords par (Hex col row) =
     case par of
-        Even -> (x, z + (x + parity x) `div` 2)
-        Odd -> (x, z + (x - parity x) `div` 2)
+        Even -> (col, row + (col + parity col) `div` 2)
+        Odd -> (col, row + (col - parity col) `div` 2)
 
 fromOffset :: Integral a => Parity -> (a, a) -> Hex a
 fromOffset par (col, row) =
@@ -88,22 +88,22 @@ fromOffset par (col, row) =
 -- * Neighbors
 
 top :: Num a => Hex a -> Hex a
-top = (+) $ Hex 0 1 (-1)
+top = (+) $ Hex 0 (-1)
 
 topLeft :: Num a => Hex a -> Hex a
-topLeft = (+) $ Hex (-1) 1 0
+topLeft = (+) $ Hex (-1) 0
 
 topRight :: Num a => Hex a -> Hex a
-topRight = (+) $ Hex 1 0 (-1)
+topRight = (+) $ Hex 1 (-1)
 
 bottom :: Num a => Hex a -> Hex a
-bottom = (+) $ Hex 0 (-1) 1
+bottom = (+) $ Hex 0 1
 
 bottomLeft :: Num a => Hex a -> Hex a
-bottomLeft = (+) $ Hex (-1) 0 1
+bottomLeft = (+) $ Hex (-1) 1
 
 bottomRight :: Num a => Hex a -> Hex a
-bottomRight = (+) $ Hex 1 (-1) 0
+bottomRight = (+) $ Hex 1 0
 
 -- | All the neighbors of a hex, excluding the hex itself.
 neighbors :: Num a => Hex a -> [Hex a]

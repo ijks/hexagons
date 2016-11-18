@@ -21,10 +21,10 @@ tests = testGroup "Hexagon"
         (axialIdentity :: Hex Int -> Bool)
     , testProperty "conversion to and then from offset is idempotent"
         (offsetIdentity :: Parity -> Hex Int -> Bool)
-    , testProperty "axial coords ensure planar hexes"
-        (axialPlanar :: (Int, Int) -> Bool)
-    , testProperty "neighbors of a planar hex are planar"
-        (neighborsPlanar :: Hex Int -> Bool)
+    , testProperty "cube coords are always in the same plane"
+        (cubePlanar :: Hex Int -> Bool)
+    , testProperty "a hexagon has exactly 6 neighbors"
+        (neighborsCount :: Hex Int -> Bool)
     ]
 
 instance (Arbitrary a, Num a) => Arbitrary (Hex a) where
@@ -42,11 +42,9 @@ instance Arbitrary Parity where
 offsetIdentity :: (Eq a, Integral a, Show a) => Parity -> Hex a -> Bool
 offsetIdentity par = checkIdentity (offsetCoords par) (fromOffset par)
 
-planar :: (Eq a, Num a) => Hex a -> Bool
-planar (Hex x y z) = x + y + z == 0
+cubePlanar :: (Eq a, Num a, Show a) => Hex a -> Bool
+cubePlanar = planar . cubeCoords
+    where planar (x, y, z) = x + y + z == 0
 
-axialPlanar :: (Eq a, Num a) => (a, a) -> Bool
-axialPlanar c = planar $ fromAxial c
-
-neighborsPlanar :: (Eq a, Num a) => Hex a -> Bool
-neighborsPlanar h = all planar (neighbors h)
+neighborsCount :: Num a => Hex a -> Bool
+neighborsCount h = length (neighbors h) == 6
