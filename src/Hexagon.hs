@@ -38,6 +38,8 @@ instance Fractional a => Fractional (Hex a) where
 
 -- * Coordinate Systems
 
+-- * Axial Coordinates
+
 -- | Get the axial coordinates of a hex.
 axialCoords :: Hex a -> (a, a)
 axialCoords (Hex col row) = (col, row)
@@ -45,6 +47,8 @@ axialCoords (Hex col row) = (col, row)
 -- | Create a hex from a tuple of axial coordinates.
 fromAxial :: (a, a) -> Hex a
 fromAxial (col, row) = Hex col row
+
+-- * Cube Coordinates
 
 -- | Get the cube coordinates of a hex.
 cubeCoords :: Num a => Hex a -> (a, a, a)
@@ -63,7 +67,7 @@ cubeY h = case cubeCoords h of (_, y, _) -> y
 cubeZ :: Num a => Hex a -> a
 cubeZ h = case cubeCoords h of (_, _, z) -> z
 
--- ** Offset coordinates
+-- ** Offset Coordinates
 
 data Parity = Odd | Even
     deriving (Eq, Show)
