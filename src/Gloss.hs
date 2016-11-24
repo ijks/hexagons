@@ -14,8 +14,8 @@ grid par (cols, rows) s =
 
 drawHex :: Integral a => Float -> Hex a -> Picture
 drawHex s h =
-    uncurry translate (pixelCoords s (fromIntegral <$> h))
-    $ scale s s
+      scale s s
+    $ uncurry translate (pixelCoords (fromIntegral <$> h))
     $ lineLoop
         [ (cos angle, sin angle)
         | i <- [0 .. 5]
