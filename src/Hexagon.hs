@@ -97,6 +97,10 @@ pixelCoords (Hex col row) =
     -- only case I've needed it so far, so it's just inlined.
     (3 / 2 * col, sqrt 3 * (row + col / 2))
 
+fromPixel :: Floating a => (a, a) -> Hex a
+fromPixel (x, y) =
+    Hex (x * 2 / 3) (-x / 3 + sqrt 3 / 3 * y)
+
 -- * Neighbors
 
 top :: Num a => Hex a -> Hex a
