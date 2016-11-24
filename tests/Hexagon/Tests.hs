@@ -41,7 +41,7 @@ instance Arbitrary Parity where
 
 offsetIdentity par = (fromOffset par . offsetCoords par) `preserves` id
 
-pixelIdentity h = approxEq 1e-4 h (fromPixel (pixelCoords h))
+pixelIdentity h = approxEq 10e-4 h (fromPixel (pixelCoords h))
 
 cubePlanar = planar . cubeCoords
     where planar (x, y, z) = x + y + z == 0
