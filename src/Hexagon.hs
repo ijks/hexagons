@@ -89,6 +89,14 @@ fromOffset par (col, row) =
         Even -> fromAxial (col, row - (col + parity col) `div` 2)
         Odd -> fromAxial (col, row - (col - parity col) `div` 2)
 
+-- ** Pixel Coordinates
+
+pixelCoords :: Floating a => a -> Hex a -> (a, a)
+pixelCoords scale (Hex col row) =
+    -- This is better expressed as a matrix multiplication, but this is the
+    -- only case I've needed it so far, so it's just inlined.
+    (scale * 3 / 2 * col, scale * sqrt 3 * (row + col / 2))
+
 -- * Neighbors
 
 top :: Num a => Hex a -> Hex a
