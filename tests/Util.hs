@@ -1,7 +1,7 @@
 module Util where
 
-checkIdentity :: (Eq a, Show a) => (a -> b) -> (b -> a) -> a -> Bool
-checkIdentity to from x = from (to x) == x
+preserves :: Eq b => (a -> b) -> (a -> b) -> a -> Bool
+preserves f g x = f x == g x
 
 approxEq :: (Ord a, Num a) => a -> a -> a -> Bool
 approxEq epsilon a b = abs (a - b) < epsilon

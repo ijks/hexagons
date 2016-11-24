@@ -32,14 +32,14 @@ tests = testGroup "Hexagon"
 instance (Arbitrary a, Num a) => Arbitrary (Hex a) where
     arbitrary = fromAxial <$> arbitrary
 
-cubeIdentity = checkIdentity cubeCoords fromCube
+cubeIdentity = (fromCube . cubeCoords) `preserves` id
 
-axialIdentity = checkIdentity axialCoords fromAxial
+axialIdentity = (fromAxial . axialCoords) `preserves` id
 
 instance Arbitrary Parity where
     arbitrary = elements [Odd, Even]
 
-offsetIdentity par = checkIdentity (offsetCoords par) (fromOffset par)
+offsetIdentity par = (fromOffset par . offsetCoords par) `preserves` id
 
 pixelIdentity h = approxEq 1e-4 h (fromPixel (pixelCoords h))
 
