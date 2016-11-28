@@ -1,16 +1,18 @@
-module Gloss where
+module Main where
 
 import Graphics.Gloss
 
 import Hexagon
+import Grid
 
-grid :: Parity -> (Int, Int) -> Float -> Picture
-grid par (cols, rows) s =
-    pictures
-        [ drawHex s $ fromOffset par (x, y)
-        | x <- [0 .. cols - 1]
-        , y <- [0 .. cols - 1]
-        ]
+main :: IO ()
+main = display
+    (InWindow "hexagons" (512, 512) (50, 50))
+    black
+    (color white $ drawGrid Odd (10, 10) 20)
+
+drawGrid :: Parity -> (Int, Int) -> Float -> Picture
+drawGrid par size s = pictures $ drawHex s <$> squareGrid par size
 
 drawHex :: Integral a => Float -> Hex a -> Picture
 drawHex s h =
