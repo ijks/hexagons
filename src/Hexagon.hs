@@ -112,6 +112,9 @@ data Direction
     | BottomRight
     deriving (Enum, Eq, Show)
 
+allDirections :: [Direction]
+allDirections = [Top .. BottomRight]
+
 direction :: Num a => Direction -> Hex a
 direction Top = Hex 0 (-1)
 direction TopLeft = Hex (-1) 0
@@ -125,14 +128,7 @@ neighbor = (+) . direction
 
 -- | All the neighbors of a hex, excluding the hex itself.
 neighbors :: Integral a => Hex a -> [Hex a]
-neighbors h = map (`neighbor` h)
-    [ Top
-    , TopLeft
-    , TopRight
-    , Bottom
-    , BottomLeft
-    , BottomRight
-    ]
+neighbors h = map (`neighbor` h) allDirections
 
 -- * Calculations with hexes
 
