@@ -12,3 +12,6 @@ instance (Arbitrary a, Num a) => Arbitrary (Hex a) where
 
 instance Arbitrary Parity where
     arbitrary = elements [Odd, Even]
+
+instance Arbitrary Direction where
+    arbitrary = elements allDirections
