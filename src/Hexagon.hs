@@ -103,33 +103,35 @@ fromPixel (x, y) =
 
 -- * Neighbors
 
-top :: Num a => Hex a -> Hex a
-top = (+) $ Hex 0 (-1)
+data Direction
+    = Top
+    | TopLeft
+    | TopRight
+    | Bottom
+    | BottomLeft
+    | BottomRight
+    deriving (Enum, Eq, Show)
 
-topLeft :: Num a => Hex a -> Hex a
-topLeft = (+) $ Hex (-1) 0
+direction :: Num a => Direction -> Hex a
+direction Top = Hex 0 (-1)
+direction TopLeft = Hex (-1) 0
+direction TopRight = Hex 1 (-1)
+direction Bottom = Hex 0 1
+direction BottomLeft = Hex (-1) 1
+direction BottomRight = Hex 1 0
 
-topRight :: Num a => Hex a -> Hex a
-topRight = (+) $ Hex 1 (-1)
-
-bottom :: Num a => Hex a -> Hex a
-bottom = (+) $ Hex 0 1
-
-bottomLeft :: Num a => Hex a -> Hex a
-bottomLeft = (+) $ Hex (-1) 1
-
-bottomRight :: Num a => Hex a -> Hex a
-bottomRight = (+) $ Hex 1 0
+neighbor :: Num a => Direction -> Hex a -> Hex a
+neighbor = (+) . direction
 
 -- | All the neighbors of a hex, excluding the hex itself.
 neighbors :: Integral a => Hex a -> [Hex a]
-neighbors h = map ($ h)
-    [ top
-    , topLeft
-    , topRight
-    , bottom
-    , bottomLeft
-    , bottomRight
+neighbors h = map (`neighbor` h)
+    [ Top
+    , TopLeft
+    , TopRight
+    , Bottom
+    , BottomLeft
+    , BottomRight
     ]
 
 -- * Calculations with hexes
@@ -137,3 +139,6 @@ neighbors h = map ($ h)
 -- | Calculate the distance between two hexes
 distance :: Num a => Ord a => Hex a -> Hex a -> a
 distance a b = foldr max 0 $ a - b
+
+scale :: Num a => Direction -> a -> Hex a -> Hex a
+scale dir s h = h + fmap (* s) (direction dir)

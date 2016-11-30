@@ -2,7 +2,7 @@ module Main where
 
 import Graphics.Gloss
 
-import Hexagon
+import Hexagon hiding (scale)
 import Grid
 
 main :: IO ()
