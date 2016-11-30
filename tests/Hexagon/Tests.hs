@@ -1,5 +1,3 @@
-{-# OPTIONS_GHC -fno-warn-orphans #-}
-
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Hexagon.Tests
@@ -11,6 +9,7 @@ import Test.Tasty.QuickCheck
 
 import Hexagon
 
+import Instances
 import Util
 
 tests :: TestTree
@@ -29,15 +28,9 @@ tests = testGroup "Hexagon"
         (neighborsCount :: Hex Int -> Bool)
     ]
 
-instance (Arbitrary a, Num a) => Arbitrary (Hex a) where
-    arbitrary = fromAxial <$> arbitrary
-
 cubeIdentity = (fromCube . cubeCoords) `preserves` id
 
 axialIdentity = (fromAxial . axialCoords) `preserves` id
-
-instance Arbitrary Parity where
-    arbitrary = elements [Odd, Even]
 
 offsetIdentity par = (fromOffset par . offsetCoords par) `preserves` id
 
