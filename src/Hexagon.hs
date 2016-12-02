@@ -115,6 +115,22 @@ data Direction
 allDirections :: [Direction]
 allDirections = [Top .. BottomRight]
 
+turnLeft :: Direction -> Direction
+turnLeft Top = TopLeft
+turnLeft TopLeft = BottomLeft
+turnLeft BottomLeft = Bottom
+turnLeft Bottom = BottomRight
+turnLeft BottomRight = TopRight
+turnLeft TopRight = Top
+
+turnRight :: Direction -> Direction
+turnRight Top = TopRight
+turnRight TopRight = BottomRight
+turnRight BottomRight = Bottom
+turnRight Bottom = BottomLeft
+turnRight BottomLeft = TopLeft
+turnRight TopLeft = Top
+
 direction :: Num a => Direction -> Hex a
 direction Top = Hex 0 (-1)
 direction TopLeft = Hex (-1) 0

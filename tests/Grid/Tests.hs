@@ -18,6 +18,8 @@ tests = testGroup "Grid"
         (gridSize :: Parity -> (NonNegative Int, NonNegative Int) -> Bool)
     , testProperty "a line of length l has l tiles"
         (lineLength :: Direction -> NonNegative Int -> Hex Int -> Bool)
+    , testProperty "a ring of size r has r * 6 tiles"
+        (ringSize :: Hex Int -> NonNegative Int -> Bool)
     ]
 
 gridSize par (NonNegative w, NonNegative h) =
@@ -25,3 +27,6 @@ gridSize par (NonNegative w, NonNegative h) =
 
 lineLength dir (NonNegative l) h =
     length (straightLine dir l h) == l
+
+ringSize h (NonNegative r) =
+    length (ring h r) == r * 6
