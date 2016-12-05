@@ -19,3 +19,6 @@ ring c r = do
     let corner = scale dir r c
     let dir' = turnLeft (turnLeft dir)
     straightLine dir' r corner
+
+hexagon :: Integral a => Hex a -> a -> [Hex a]
+hexagon c r = c : ([1 .. r] >>= ring c)

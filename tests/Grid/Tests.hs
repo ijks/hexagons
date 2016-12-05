@@ -20,6 +20,10 @@ tests = testGroup "Grid"
         (lineLength :: Direction -> NonNegative Int -> Hex Int -> Bool)
     , testProperty "a ring of size r has r * 6 tiles"
         (ringSize :: Hex Int -> NonNegative Int -> Bool)
+    , testProperty "a hexagonal grid has the right amount of tiles"
+        (hexagonSize :: Hex Int -> NonNegative Int -> Bool)
+    , testProperty "a hexagonal grid always contains the center tile"
+        (hexagonCenter :: Hex Int -> NonNegative Int -> Bool)
     ]
 
 gridSize par (NonNegative w, NonNegative h) =
@@ -30,3 +34,9 @@ lineLength dir (NonNegative l) h =
 
 ringSize h (NonNegative r) =
     length (ring h r) == r * 6
+
+hexagonSize h (NonNegative r) =
+    length (hexagon h r) == 1 + 6 * sum [1 .. r]
+
+hexagonCenter h (NonNegative r) =
+    h `elem` hexagon h r
