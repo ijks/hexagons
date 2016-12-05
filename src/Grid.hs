@@ -1,6 +1,21 @@
 module Grid where
 
+import Data.Map (Map)
+import qualified Data.Map as Map
+import Data.Maybe (mapMaybe)
+
 import Hexagon
+
+newtype Grid a = Grid { unGrid :: Map (Hex Int) a }
+
+elemAt :: Hex Int -> Grid a -> Maybe a
+elemAt h (Grid m) = Map.lookup h m
+
+(!?) :: Grid a -> Hex Int -> Maybe a
+(!?) = flip elemAt
+
+neighborhood :: Hex Int -> Grid a -> [a]
+neighborhood h g = mapMaybe (g !?) (neighbors h)
 
 square :: Integral a => Parity -> (a, a) -> [Hex a]
 square par (w, h) =
