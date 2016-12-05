@@ -12,7 +12,7 @@ main = display
     (color white $ drawGrid Odd (10, 10) 20)
 
 drawGrid :: Parity -> (Int, Int) -> Float -> Picture
-drawGrid par size s = pictures $ drawHex s <$> squareGrid par size
+drawGrid par size s = pictures $ drawHex s <$> square par size
 
 drawHex :: Integral a => Float -> Hex a -> Picture
 drawHex s h =
