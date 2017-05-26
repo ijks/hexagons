@@ -4,9 +4,10 @@ module Hexagon where
 
 import Prelude
 
-import Data.Int (odd)
 import Math (sqrt)
+import Data.Int (odd)
 import Data.Monoid (class Monoid, mempty)
+import Data.Ord (abs)
 
 -- | The coordinates of a hexagon in a grid.
 data Hex a = Hex a a
@@ -113,3 +114,69 @@ fromPixel { x, y } =
         row = -x / 3.0 + sqrt 3.0 / 3.0 * y
     in
         Hex col row
+
+-- * Neighbors
+
+data Direction
+    = Top
+    | TopLeft
+    | TopRight
+    | Bottom
+    | BottomLeft
+    | BottomRight
+
+derive instance eqDirection :: Eq Direction
+
+allDirections :: Array Direction
+allDirections =
+    [ Top
+    , TopLeft
+    , TopRight
+    , Bottom
+    , BottomLeft
+    , BottomRight
+    ]
+
+turnLeft :: Direction -> Direction
+turnLeft Top = TopLeft
+turnLeft TopLeft = BottomLeft
+turnLeft BottomLeft = Bottom
+turnLeft Bottom = BottomRight
+turnLeft BottomRight = TopRight
+turnLeft TopRight = Top
+
+turnRight :: Direction -> Direction
+turnRight Top = TopRight
+turnRight TopRight = BottomRight
+turnRight BottomRight = Bottom
+turnRight Bottom = BottomLeft
+turnRight BottomLeft = TopLeft
+turnRight TopLeft = Top
+
+-- | Get a hex that describes an offset in a direction
+direction :: forall a. Ring a => Direction -> Hex a
+direction Top = Hex zero (negate one)
+direction TopLeft = Hex (negate one) zero
+direction TopRight = Hex one (negate one)
+direction Bottom = Hex zero one
+direction BottomLeft = Hex (negate one) one
+direction BottomRight = Hex one zero
+
+-- | A neighbor of a hex in a specific direction.
+neighbor :: forall a. Ring a => Direction -> Hex a -> Hex a
+neighbor = add <<< direction
+
+-- | All the neighbors of a hex, excluding the hex itself.
+neighbors :: forall a. Ring a => Hex a -> Array (Hex a)
+neighbors h = map (_ `neighbor` h) allDirections
+
+-- * Calculations with Hexes
+
+-- | Calculate the Manhattan distance between two hexes
+distance :: forall a. Ord a => Ring a => Hex a -> Hex a -> a
+distance (Hex c1 r1) (Hex c2 r2) =
+    abs (c1 - c2) + abs (r1 - r2)
+
+-- | Scale a hex by a scalar value
+scale :: forall a. Ring a => a -> Hex a -> Hex a
+scale s = map (_ * s)
