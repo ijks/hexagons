@@ -12,7 +12,11 @@
     "purescript-monoid": "^3.0.0",
     "purescript-integers": "^3.0.0",
     "purescript-math": "^2.0.0",
-    "purescript-enums": "^3.0.0"
+    "purescript-enums": "^3.0.0",
+    "purescript-maps": "^3.0.0",
+    "purescript-lists": "^4.3.0",
+    "purescript-maybe": "^3.0.0",
+    "purescript-newtype": "^2.0.0"
   },
   "devDependencies": {
     "purescript-psci-support": "^3.0.0"
