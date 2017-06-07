@@ -2,7 +2,8 @@ module Grid where
 
 import Prelude
 
-import Data.List (List(..), fromFoldable, mapMaybe, (:), (..))
+import Data.List as List
+import Data.List (List(..), mapMaybe, (:), (..))
 import Data.Map as Map
 import Data.Map (Map)
 import Data.Maybe (Maybe(..))
@@ -14,13 +15,16 @@ newtype Grid a = Grid (Map (Hex Int) a)
 
 derive instance newtypeGrid :: Newtype (Grid a) _
 
+instance showGrid :: Show a => Show (Grid a) where
+  show (Grid map) = "Grid " <> (show (Map.toUnfoldable map :: Array _))
+
 index :: forall a. Grid a -> Hex Int -> Maybe a
 index (Grid grid) hex = Map.lookup hex grid
 
 infixl 8 index as !!
 
 neighborhood :: forall a. Hex Int -> Grid a -> List a
-neighborhood hex grid = mapMaybe (grid !! _) (fromFoldable $ neighbors hex)
+neighborhood hex grid = mapMaybe (grid !! _) (List.fromFoldable $ neighbors hex)
 
 square :: Parity -> { width :: Int, height :: Int } -> List (Hex Int)
 square par { width, height } =
@@ -36,7 +40,7 @@ line dir n start = start : line dir (n - 1) (neighbor dir start)
 ring :: Hex Int -> Int -> List (Hex Int)
 ring center radius =
   do
-    dir <- fromFoldable allDirections
+    dir <- List.fromFoldable allDirections
     let corner = center + scale radius (direction dir)
     let dir' = turnLeft $ turnLeft dir
     line dir' radius corner
