@@ -5,6 +5,7 @@ module Hexagon where
 import Prelude
 
 import Math (sqrt)
+import Data.Generic (class Generic, gShow)
 import Data.Int (odd)
 import Data.Monoid (class Monoid, mempty)
 import Data.Ord (abs)
@@ -14,7 +15,11 @@ data Hex a = Hex a a
 
 derive instance eqHex :: Eq a => Eq (Hex a)
 derive instance functorHex :: Functor Hex
+derive instance genericHex :: Generic a => Generic (Hex a)
 derive instance ordHex :: Ord a => Ord (Hex a)
+
+instance showHex :: Generic a => Show (Hex a) where
+  show = gShow
 
 instance applyHex :: Apply Hex where
   apply (Hex f g) (Hex row col) =
