@@ -12,31 +12,31 @@ import Data.Ord (abs)
 -- | The coordinates of a hexagon in a grid.
 data Hex a = Hex a a
 
-derive instance eqHex :: (Eq a) => Eq (Hex a)
+derive instance eqHex :: Eq a => Eq (Hex a)
 derive instance functorHex :: Functor Hex
-derive instance ordHex :: (Ord a) => Ord (Hex a)
+derive instance ordHex :: Ord a => Ord (Hex a)
 
 instance applyHex :: Apply Hex where
-    apply (Hex f g) (Hex row col) =
-        Hex (f row) (g col)
+  apply (Hex f g) (Hex row col) =
+    Hex (f row) (g col)
 
 instance applicativeHex :: Applicative Hex where
-    pure x = Hex x x
+  pure x = Hex x x
 
 instance semigroupHex :: (Semigroup a) => Semigroup (Hex a) where
-    append a b = append <$> a <*> b
+  append a b = append <$> a <*> b
 
 instance monoidHex :: (Monoid a) => Monoid (Hex a) where
-    mempty = pure mempty
+  mempty = pure mempty
 
 instance semiringHex :: (Semiring a) => Semiring (Hex a) where
-    one = pure one
-    mul a b = mul <$> a <*> b
-    zero = pure zero
-    add a b = add <$> a <*> b
+  one = pure one
+  mul a b = mul <$> a <*> b
+  zero = pure zero
+  add a b = add <$> a <*> b
 
 instance ringHex :: (Ring a) => Ring (Hex a) where
-    sub a b = sub <$> a <*> b
+  sub a b = sub <$> a <*> b
 
 instance commutativeRingHex :: (CommutativeRing a) => CommutativeRing (Hex a)
 
@@ -84,58 +84,58 @@ derive instance eqParity :: Eq Parity
 
 parity :: Int -> Int
 parity n
-    | odd n = 1
-    | otherwise = 0
+  | odd n = 1
+  | otherwise = 0
 
 offsetCoords :: Parity -> Hex Int -> { column :: Int, row :: Int }
 offsetCoords par (Hex col row) =
-    case par of
-        Even -> { column: col, row: row + (col + parity col) / 2 }
-        Odd -> { column: col, row: row + (col - parity col) / 2 }
+  case par of
+    Even -> { column: col, row: row + (col + parity col) / 2 }
+    Odd -> { column: col, row: row + (col - parity col) / 2 }
 
 fromOffset :: Parity -> { column :: Int, row :: Int } -> Hex Int
 fromOffset par { row, column } =
-    case par of
-        Even -> Hex column (row - (column + parity column) / 2)
-        Odd -> Hex column (row - (column - parity column) / 2)
+  case par of
+    Even -> Hex column (row - (column + parity column) / 2)
+    Odd -> Hex column (row - (column - parity column) / 2)
 
 -- ** Pixel Coordinates
 
 pixelCoords :: Hex Number -> { x :: Number, y :: Number }
 pixelCoords (Hex col row) =
-    -- This is better expressed as a matrix multiplication, but this is the
-    -- only case I've needed it so far, so it's just inlined.
-    { x: 3.0 / 2.0 * col, y: sqrt 3.0 * (row + col / 2.0) }
+  -- This is better expressed as a matrix multiplication, but this is the
+  -- only case I've needed it so far, so it's just inlined.
+  { x: 3.0 / 2.0 * col, y: sqrt 3.0 * (row + col / 2.0) }
 
 fromPixel :: { x :: Number, y :: Number } -> Hex Number
 fromPixel { x, y } =
-    let
-        col = x * 2.0 / 3.0
-        row = -x / 3.0 + sqrt 3.0 / 3.0 * y
-    in
-        Hex col row
+  let
+    col = x * 2.0 / 3.0
+    row = -x / 3.0 + sqrt 3.0 / 3.0 * y
+  in
+    Hex col row
 
 -- * Neighbors
 
 data Direction
-    = Top
-    | TopLeft
-    | TopRight
-    | Bottom
-    | BottomLeft
-    | BottomRight
+  = Top
+  | TopLeft
+  | TopRight
+  | Bottom
+  | BottomLeft
+  | BottomRight
 
 derive instance eqDirection :: Eq Direction
 
 allDirections :: Array Direction
 allDirections =
-    [ Top
-    , TopLeft
-    , TopRight
-    , Bottom
-    , BottomLeft
-    , BottomRight
-    ]
+  [ Top
+  , TopLeft
+  , TopRight
+  , Bottom
+  , BottomLeft
+  , BottomRight
+  ]
 
 turnLeft :: Direction -> Direction
 turnLeft Top = TopLeft
@@ -175,7 +175,7 @@ neighbors h = map (_ `neighbor` h) allDirections
 -- | Calculate the Manhattan distance between two hexes
 distance :: forall a. Ord a => Ring a => Hex a -> Hex a -> a
 distance (Hex c1 r1) (Hex c2 r2) =
-    abs (c1 - c2) + abs (r1 - r2)
+  abs (c1 - c2) + abs (r1 - r2)
 
 -- | Scale a hex by a scalar value
 scale :: forall a. Ring a => a -> Hex a -> Hex a

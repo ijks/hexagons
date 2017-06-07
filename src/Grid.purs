@@ -23,7 +23,8 @@ neighborhood :: forall a. Hex Int -> Grid a -> List a
 neighborhood hex grid = mapMaybe (grid !! _) (fromFoldable $ neighbors hex)
 
 square :: Parity -> { width :: Int, height :: Int } -> List (Hex Int)
-square par { width, height } = do
+square par { width, height } =
+  do
     column <- 1 .. width
     row <- 1 .. height
     pure $ fromOffset par { column, row }
@@ -33,7 +34,8 @@ line _ 0 _ = Nil
 line dir n start = start : line dir (n - 1) (neighbor dir start)
 
 ring :: Hex Int -> Int -> List (Hex Int)
-ring center radius = do
+ring center radius =
+  do
     dir <- fromFoldable allDirections
     let corner = center + scale radius (direction dir)
     let dir' = turnLeft $ turnLeft dir
