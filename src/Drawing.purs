@@ -5,9 +5,12 @@ module Drawing where
 import Prelude
 
 import Color (Color)
+import Data.Int (toNumber)
+import Data.List ((..))
 import Data.Maybe (Maybe(..))
 import Data.Monoid (class Monoid, mempty)
 import Data.Tuple (Tuple(..))
+import Math (cos, pi, sin)
 
 import Graphics.Drawing as GD
 import Graphics.Drawing (Drawing, Shape, FillStyle, OutlineStyle, Shadow)
@@ -91,3 +94,13 @@ draw (Style style) shape =
     case style.shadow of
       Just shadow -> GD.shadow shadow $ drawShape shape
       Nothing -> drawShape shape
+
+hex :: Number -> Number -> Number -> Shape
+hex left top radius =
+  GD.closed $ do
+    corner <- 0 .. 5
+    let angle = pi / 3.0 * toNumber corner
+    pure
+      { x: radius * cos angle + left
+      , y: radius * sin angle + top
+      }
