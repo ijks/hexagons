@@ -7,9 +7,9 @@ import Data.List as List
 import Data.List (List(..), mapMaybe, (:), (..))
 import Data.Map as Map
 import Data.Map (Map)
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), isJust)
 import Data.Newtype (class Newtype, unwrap, wrap)
-import Data.Tuple (Tuple(..))
+import Data.Tuple (Tuple(..), fst)
 import Data.Unfoldable (class Unfoldable)
 
 import Hexagon
@@ -44,6 +44,9 @@ infixl 8 index as !!
 
 neighborhood :: forall a. Hex Int -> Grid a -> List a
 neighborhood hex grid = mapMaybe (grid !! _) (List.fromFoldable $ neighbors hex)
+
+mask :: forall a b. Grid a -> Grid b -> Grid b
+mask m = toUnfoldable >>> List.filter (fst >>> (m !! _) >>> isJust) >>> fromFoldable
 
 square :: Parity -> { width :: Int, height :: Int } -> List (Hex Int)
 square par { width, height } =
