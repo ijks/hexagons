@@ -18,7 +18,7 @@ import Graphics.Canvas (CANVAS)
 import Math (cos, pi, sin)
 
 import DOM (DOM)
-import Flare (UI)
+import Flare (UI, numberSlider)
 import Flare.Drawing (runFlareDrawing)
 import Signal.Channel (CHANNEL)
 
@@ -27,10 +27,17 @@ import Hexagon
 import Grid
 
 main :: Eff (console :: CONSOLE, dom :: DOM, channel :: CHANNEL, canvas :: CANVAS) Unit
-main = runFlareDrawing "controls" "drawing" $ pure drawing
+main = runFlareDrawing "controls" "drawing" $ ui
 
-drawing :: Drawing
-drawing = Drawing.scale 10.0 10.0
+ui :: forall e. UI e Drawing
+ui = drawing
+  <$> numberSlider "X Offset" (-10.0) 10.0 0.1 0.0
+  <*> numberSlider "Y Offset" (-10.0) 10.0 0.1 0.0
+  <*> numberSlider "Scale" 1.0 20.0 0.1 1.0
+
+drawing :: Number -> Number -> Number -> Drawing
+drawing x y s = Drawing.scale s s
+  $ Drawing.translate x y
   $ drawGrid drawHex (const mempty)
   $ fromCoordinates (const unit)
   $ square Even { width: 10, height: 10 }
