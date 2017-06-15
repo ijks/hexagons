@@ -60,3 +60,6 @@ instance monadGenRandom :: MonadGen Random where
   -- I'm not writing for actual QuickCheck-esque testing, so ¯\_(ツ)_/¯ on these.
   sized f = f 1
   resize f = id
+
+noise :: forall m a. MonadGen m => Grid a -> m (Grid Boolean)
+noise shape = traverse (const chooseBool) shape
