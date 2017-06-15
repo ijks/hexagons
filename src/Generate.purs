@@ -61,5 +61,8 @@ instance monadGenRandom :: MonadGen Random where
   sized f = f 1
   resize f = id
 
+genGrid :: forall m a b. MonadGen m => m a -> Grid b -> m (Grid a)
+genGrid content shape = traverse (const content) shape
+
 noise :: forall m a. MonadGen m => Grid a -> m (Grid Boolean)
-noise shape = traverse (const chooseBool) shape
+noise = genGrid chooseBool
