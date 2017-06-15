@@ -9,6 +9,7 @@ import Data.Map as Map
 import Data.Map (Map)
 import Data.Maybe (Maybe(..), isJust)
 import Data.Newtype (class Newtype, unwrap, wrap)
+import Data.Traversable (class Traversable)
 import Data.Tuple (Tuple(..), fst)
 import Data.Unfoldable (class Unfoldable)
 
@@ -18,6 +19,7 @@ newtype Grid a = Grid (Map (Hex Int) a)
 
 derive instance newtypeGrid :: Newtype (Grid a) _
 derive newtype instance foldableGrid :: Foldable Grid
+derive newtype instance traversableGrid :: Traversable Grid
 
 instance showGrid :: Show a => Show (Grid a) where
   show (Grid map) = "Grid " <> (show (Map.toUnfoldable map :: Array _))
