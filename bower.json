@@ -24,7 +24,9 @@
     "purescript-canvas": "^3.0.0",
     "purescript-tuples": "^4.1.0",
     "purescript-unfoldable": "^3.0.0",
-    "purescript-foldable-traversable": "^3.3.0"
+    "purescript-foldable-traversable": "^3.3.0",
+    "purescript-random": "^3.0.0",
+    "purescript-free": "^4.0.1"
   },
   "devDependencies": {
     "purescript-psci-support": "^3.0.0"
