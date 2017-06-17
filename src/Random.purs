@@ -2,6 +2,7 @@ module Random where
 
 import Prelude
 
+import Data.Generic (class Generic, gShow)
 import Data.Int (pow)
 import Data.Newtype (class Newtype)
 import Data.Tuple (Tuple(..))
@@ -26,8 +27,12 @@ class RandomGen g where
 newtype Lcg = Lcg { state :: Int }
 
 derive instance newtypeLcg :: Newtype Lcg _
+derive instance genericLcg :: Generic Lcg
 
-instance randomGenLCG :: RandomGen Lcg where
+instance showLcg :: Show Lcg where
+  show = gShow
+
+instance randomGenLcg :: RandomGen Lcg where
   next (Lcg { state }) =
     let
       multiplier = 1664525
