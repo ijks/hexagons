@@ -37,7 +37,8 @@ instance randomGenLcg :: RandomGen Lcg where
     let
       multiplier = 1664525
       increment = 1013904223
-      modulus = bottom - top
-      state' = (multiplier * state + increment) `mod` modulus
+      -- An LCG usually also has a modulus parameter, but that's implicit here
+      -- due to overflow.
+      state' = (multiplier * state + increment)
     in
       Tuple state' (Lcg { state: state' })
