@@ -5,8 +5,9 @@ import Prelude
 import Control.Monad.State (StateT, runStateT)
 import Control.Monad.Trans.Class (class MonadTrans)
 import Data.Generic (class Generic, gShow)
+import Data.Identity (Identity(..))
 import Data.Newtype (class Newtype, unwrap, wrap)
-import Data.Tuple (Tuple(..))
+import Data.Tuple (Tuple(..), fst, snd)
 
 -- | This class identifies datatypes that can be used as a pseudo-random number
 -- | generator.
@@ -62,3 +63,25 @@ liftRandomT = wrap <<< wrap
 
 runRandomT :: forall g m a. RandomT g m a -> g -> m (Tuple a g)
 runRandomT = runStateT <<< unwrap
+
+evalRandomT :: forall g m a. Functor m => RandomT g m a -> g -> m a
+evalRandomT r g = fst <$> runRandomT r g
+
+execRandomT :: forall g m a. Functor m => RandomT g m a -> g -> m g
+execRandomT r g = snd <$> runRandomT r g
+
+-- TODO: mapRandomT, withRandomT
+
+type Random g a = RandomT g Identity a
+
+liftRandom :: forall g a. (g -> Tuple a g) -> Random g a
+liftRandom f = liftRandomT (Identity <<< f)
+
+runRandom :: forall g a. Random g a -> g -> Tuple a g
+runRandom r = unwrap <<< runRandomT r
+
+evalRandom :: forall g a. Random g a -> g -> a
+evalRandom r = unwrap <<< evalRandomT r
+
+execRandom :: forall g a. Random g a -> g -> g
+execRandom r = unwrap <<< execRandomT r
