@@ -2,9 +2,10 @@ module Random where
 
 import Prelude
 
+import Control.Monad.State (StateT, runStateT)
+import Control.Monad.Trans.Class (class MonadTrans)
 import Data.Generic (class Generic, gShow)
-import Data.Int (pow)
-import Data.Newtype (class Newtype)
+import Data.Newtype (class Newtype, unwrap, wrap)
 import Data.Tuple (Tuple(..))
 
 -- | This class identifies datatypes that can be used as a pseudo-random number
@@ -42,3 +43,22 @@ instance randomGenLcg :: RandomGen Lcg where
       state' = (multiplier * state + increment)
     in
       Tuple state' (Lcg { state: state' })
+
+newtype RandomT g m a = RandomT (StateT g m a)
+
+derive instance newtypeRandomT :: Newtype (RandomT g m a) _
+derive newtype instance functorRandomT :: Functor m => Functor (RandomT g m)
+derive newtype instance applyRandomT :: Monad m => Apply (RandomT g m)
+derive newtype instance applicativeRandomT :: Monad m => Applicative (RandomT g m)
+derive newtype instance bindRandomT :: Monad m => Bind (RandomT g m)
+derive newtype instance monadRandomT :: Monad m => Monad (RandomT g m)
+derive newtype instance mondadTransRandomT :: MonadTrans (RandomT g)
+-- There are a lot of applicable newtype instances here, but CBA to write them right now.
+-- But it should *not* include MonadState, because then we can't prevent the generator
+-- from being modified directly.
+
+liftRandomT :: forall g m a. (g -> m (Tuple a g)) -> RandomT g m a
+liftRandomT = wrap <<< wrap
+
+runRandomT :: forall g m a. RandomT g m a -> g -> m (Tuple a g)
+runRandomT = runStateT <<< unwrap
