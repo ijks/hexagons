@@ -122,6 +122,7 @@ fromPixel { x, y } =
 
 -- * Neighbors
 
+-- FIXME: Put `Direction` in its own module
 data Direction
   = Top
   | TopLeft
@@ -131,16 +132,18 @@ data Direction
   | BottomRight
 
 derive instance eqDirection :: Eq Direction
+derive instance ordDirection :: Ord Direction
 
-allDirections :: Array Direction
+allDirections :: List Direction
 allDirections =
-  [ Top
-  , TopLeft
-  , TopRight
-  , Bottom
-  , BottomLeft
-  , BottomRight
-  ]
+  List.fromFoldable
+    [ Top
+    , TopLeft
+    , TopRight
+    , Bottom
+    , BottomLeft
+    , BottomRight
+    ]
 
 turnLeft :: Direction -> Direction
 turnLeft Top = TopLeft
@@ -172,7 +175,7 @@ neighbor :: forall a. Ring a => Direction -> Hex a -> Hex a
 neighbor = add <<< direction
 
 -- | All the neighbors of a hex, excluding the hex itself.
-neighbors :: forall a. Ring a => Hex a -> Array (Hex a)
+neighbors :: forall a. Ring a => Hex a -> List (Hex a)
 neighbors h = map (_ `neighbor` h) allDirections
 
 -- * Calculations with Hexes
