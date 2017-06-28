@@ -4,11 +4,15 @@ module Hexagon where
 
 import Prelude
 
-import Math (sqrt)
+import Math (pi, sqrt)
 import Data.Generic (class Generic, gShow)
-import Data.Int (odd)
+import Data.Int (odd, toNumber)
+import Data.List (List)
+import Data.List as List
 import Data.Monoid (class Monoid, mempty)
+import Data.NonEmpty (NonEmpty, (:|))
 import Data.Ord (abs)
+import Data.Pair (Pair(..))
 
 -- | The coordinates of a hexagon in a grid.
 data Hex a = Hex a a
@@ -160,6 +164,24 @@ turnRight BottomRight = Bottom
 turnRight Bottom = BottomLeft
 turnRight BottomLeft = TopLeft
 turnRight TopLeft = Top
+
+opposite :: Direction -> Direction
+opposite Top = Bottom
+opposite Bottom = Top
+opposite TopRight = BottomLeft
+opposite BottomLeft = TopRight
+opposite TopLeft = BottomRight
+opposite BottomRight = TopLeft
+
+angles :: Direction -> Pair Number
+angles = map (\i -> pi / 3.0 * toNumber i) <<< corners
+  where
+  corners TopLeft = Pair 0 1
+  corners BottomLeft = Pair 1 2
+  corners Bottom = Pair 2 3
+  corners BottomRight = Pair 3 4
+  corners TopRight = Pair 4 5
+  corners Top = Pair 5 0
 
 -- | Get a hex that describes an offset in a direction
 direction :: forall a. Ring a => Direction -> Hex a

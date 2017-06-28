@@ -44,6 +44,18 @@ index (Grid grid) hex = Map.lookup hex grid
 
 infixl 8 index as !!
 
+update :: forall a. (a -> a) -> Hex Int -> Grid a -> Grid a
+update f coord = wrap <<< Map.update (Just <<< f) coord <<< unwrap
+
+alter :: forall a. (Maybe a -> Maybe a) -> Hex Int -> Grid a -> Grid a
+alter f coord = wrap <<< Map.alter f coord <<< unwrap
+
+alterMaybe :: forall a. (a -> a) -> Hex Int -> Grid a -> Maybe (Grid a)
+alterMaybe f coord (Grid grid) =
+  do
+    x <- Map.lookup coord grid
+    pure $ wrap $ Map.insert coord (f x) grid
+
 neighborhood :: forall a. Hex Int -> Grid a -> List a
 neighborhood hex grid = mapMaybe (grid !! _) (List.fromFoldable $ neighbors hex)
 

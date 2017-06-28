@@ -7,10 +7,18 @@ import Control.Monad.Eff.Random (RANDOM)
 import Control.Monad.Eff.Random (random, randomBool, randomInt, randomRange) as R
 import Control.Monad.Free (Free, foldFree, liftF)
 import Control.Monad.Gen (class MonadGen, chooseBool)
+import Data.List (List, (:))
+import Data.List as List
+import Data.List.NonEmpty as NonEmptyList
+import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype, unwrap, wrap)
-import Data.Traversable (class Traversable, traverse)
+import Data.Set (Set)
+import Data.Set as Set
+import Data.Traversable (class Traversable, sequence, traverse)
+import Data.Tuple (Tuple(..), snd)
 
 import Grid
+import Hexagon
 
 -- Exploiting free monads to encode what random values we want before getting them.
 -- I feel like a genius for coming up with this, but it's probably not that special.
@@ -66,3 +74,19 @@ genGrid content shape = traverse (const content) shape
 
 noise :: forall m a. MonadGen m => Grid a -> m (Grid Boolean)
 noise = genGrid chooseBool
+
+type Walls = Set Direction
+
+maze :: forall m a. MonadGen m => Grid a -> Hex Int -> m (Grid Walls)
+maze shape start = genGrid randomWalls shape
+  where
+  randomWalls =
+    do
+      -- I couldn't find a function to repeat an element n times...
+      -- Don't judge me...
+      bools <- sequence [chooseBool, chooseBool, chooseBool, chooseBool, chooseBool, chooseBool]
+      pure
+        $ Set.fromFoldable
+        $ List.mapMaybe (\(Tuple b dir) -> if b then Just dir else Nothing)
+        $ List.zip (List.fromFoldable bools) allDirections
+
