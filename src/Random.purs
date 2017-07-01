@@ -53,7 +53,7 @@ derive newtype instance applyRandomT :: Monad m => Apply (RandomT g m)
 derive newtype instance applicativeRandomT :: Monad m => Applicative (RandomT g m)
 derive newtype instance bindRandomT :: Monad m => Bind (RandomT g m)
 derive newtype instance monadRandomT :: Monad m => Monad (RandomT g m)
-derive newtype instance mondadTransRandomT :: MonadTrans (RandomT g)
+derive newtype instance monadTransRandomT :: MonadTrans (RandomT g)
 -- There are a lot of applicable newtype instances here, but CBA to write them right now.
 -- But it should *not* include MonadState, because then we can't prevent the generator
 -- from being modified directly.
