@@ -136,7 +136,11 @@ data Direction
   | BottomRight
 
 derive instance eqDirection :: Eq Direction
+derive instance genericDirection :: Generic Direction
 derive instance ordDirection :: Ord Direction
+
+instance showDirection :: Show Direction where
+  show = gShow
 
 allDirections :: List Direction
 allDirections =
