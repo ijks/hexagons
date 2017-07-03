@@ -6,8 +6,11 @@ import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Random (RANDOM)
 import Control.Monad.Eff.Random (random, randomBool, randomInt, randomRange) as R
 import Control.Monad.Free (Free, foldFree, liftF)
-import Control.Monad.Gen (class MonadGen, chooseBool)
-import Data.List (List, (:))
+import Control.Monad.Gen (class MonadGen, chooseBool, elements)
+import Control.Monad.State (class MonadState, StateT, execStateT, get, gets, modify)
+import Control.Monad.Trans.Class (class MonadTrans, lift)
+import Data.Foldable (class Foldable, for_)
+import Data.List (List(Nil), (:))
 import Data.List as List
 import Data.List.NonEmpty as NonEmptyList
 import Data.Maybe (Maybe(..))
@@ -77,16 +80,90 @@ noise = genGrid chooseBool
 
 type Walls = Set Direction
 
-maze :: forall m a. MonadGen m => Grid a -> Hex Int -> m (Grid Walls)
-maze shape start = genGrid randomWalls shape
-  where
-  randomWalls =
-    do
-      -- I couldn't find a function to repeat an element n times...
-      -- Don't judge me...
-      bools <- sequence [chooseBool, chooseBool, chooseBool, chooseBool, chooseBool, chooseBool]
-      pure
-        $ Set.fromFoldable
-        $ List.mapMaybe (\(Tuple b dir) -> if b then Just dir else Nothing)
-        $ List.zip (List.fromFoldable bools) allDirections
+type MazeGen =
+  { grid :: Grid Walls
+  , position :: Hex Int
+  , unvisited :: Set (Hex Int)
+  , stack :: List (Hex Int)
+  }
 
+type Generate m a = StateT MazeGen m a
+
+maze :: forall m a. MonadGen m => Grid a -> Hex Int -> m (Grid Walls)
+maze shape start =
+  _.grid <$>
+    execStateT
+      go
+      { grid: map (const $ Set.fromFoldable allDirections) shape
+      , position: start
+      , unvisited: Set.fromFoldable $ coordinates shape
+      , stack: Nil
+      }
+  where
+    go :: MonadGen m => Generate m Unit
+    go =
+      do
+        neighbors >>= NonEmptyList.fromList >>> case _ of
+          -- We can move to one or more cells.
+          Just ns -> do
+            -- First, we store our current position on the stack.
+            pos <- gets _.position
+            push pos
+
+            -- We pick a random direction to move in, and its resulting position.
+            { dir, pos' } <- lift $ elements $ unwrap ns
+
+            -- We remove the appropriate walls.
+            removeWall pos dir
+            removeWall pos' (opposite dir)
+
+            -- Finally, we move to the new position, and mark it as visited.
+            moveTo pos'
+            visit pos'
+
+          -- There are no more cells to move to from here.
+          Nothing -> do
+            -- So, we go back to the last cell we visited, by looking at the stack.
+            next <- pop
+            for_ next moveTo
+
+        whenM (not <$> Set.isEmpty <$> gets _.unvisited) go
+
+    neighbors =
+      do
+        gen <- get
+        pure $ List.mapMaybe (check gen) allDirections
+
+    check gen dir =
+      let
+        pos' = gen.position + direction dir
+      in
+        if pos' `member` gen.grid && pos' `Set.member` gen.unvisited
+        then Just { dir, pos' }
+        else Nothing
+
+    removeWall :: Hex Int -> Direction -> Generate m Unit
+    removeWall pos dir =
+      do
+        grid <- gets (_.grid)
+        modify (_ { grid = grid # update (Set.delete dir) pos})
+
+    moveTo :: Monad m => Hex Int -> Generate m Unit
+    moveTo pos = modify (_ { position = pos })
+
+    visit :: Monad m => Hex Int -> Generate m Unit
+    visit pos = modify (\gen -> gen { unvisited = Set.delete pos gen.unvisited })
+
+    push :: Monad m => Hex Int -> Generate m Unit
+    push h = modify (\gen -> gen { stack = h : gen.stack })
+
+    pop :: Monad m => Generate m (Maybe (Hex Int))
+    pop =
+      do
+        stack <- gets _.stack
+        case stack of
+          (top : rest) -> do
+            modify (_ { stack = rest })
+            pure $ Just top
+          _ ->
+            pure $ Nothing
