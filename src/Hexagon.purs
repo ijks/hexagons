@@ -180,12 +180,12 @@ opposite BottomRight = TopLeft
 angles :: Direction -> Pair Number
 angles = map (\i -> pi / 3.0 * toNumber i) <<< corners
   where
-  corners TopLeft = Pair 0 1
-  corners BottomLeft = Pair 1 2
-  corners Bottom = Pair 2 3
-  corners BottomRight = Pair 3 4
-  corners TopRight = Pair 4 5
-  corners Top = Pair 5 0
+  corners BottomRight = Pair 0 1
+  corners Bottom = Pair 1 2
+  corners BottomLeft = Pair 2 3
+  corners TopLeft = Pair 3 4
+  corners Top = Pair 4 5
+  corners TopRight = Pair 5 0
 
 -- | Get a hex that describes an offset in a direction
 direction :: forall a. Ring a => Direction -> Hex a
