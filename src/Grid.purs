@@ -45,6 +45,9 @@ index (Grid grid) hex = Map.lookup hex grid
 
 infixl 8 index as !!
 
+member :: forall a. Hex Int -> Grid a -> Boolean
+member x (Grid grid) = x `Map.member` grid
+
 update :: forall a. (a -> a) -> Hex Int -> Grid a -> Grid a
 update f coord = wrap <<< Map.update (Just <<< f) coord <<< unwrap
 
