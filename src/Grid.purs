@@ -18,6 +18,7 @@ import Hexagon
 newtype Grid a = Grid (Map (Hex Int) a)
 
 derive instance newtypeGrid :: Newtype (Grid a) _
+derive newtype instance functorGrid :: Functor Grid
 derive newtype instance foldableGrid :: Foldable Grid
 derive newtype instance traversableGrid :: Traversable Grid
 
