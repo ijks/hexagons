@@ -4,19 +4,18 @@ import Prelude
 
 import Color (black)
 import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (CONSOLE, log)
+import Control.Monad.Eff.Console (CONSOLE)
 import Control.Monad.Eff.Unsafe (unsafePerformEff)
-import Data.Foldable (class Foldable, foldMap)
+import Data.Foldable (foldMap)
 import Data.Int (toNumber)
-import Data.List (List, (..))
-import Data.Maybe (isJust)
-import Data.Monoid (class Monoid, mempty)
+import Data.List (List)
+import Data.Monoid (mempty)
 import Data.Tuple (Tuple(..))
-import Graphics.Drawing (Drawing, Shape)
+import Graphics.Drawing (Drawing)
 import Graphics.Drawing (closed, path) as Shape
 import Graphics.Drawing (scale, translate) as Drawing
 import Graphics.Canvas (CANVAS)
-import Math (cos, pi, sin)
+import Math (cos, sin)
 
 import DOM (DOM)
 import Flare (UI, intSlider, numberSlider)
