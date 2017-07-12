@@ -20,6 +20,9 @@ import Data.Set as Set
 import Data.Traversable (class Traversable, sequence, traverse)
 import Data.Tuple (Tuple(..), snd)
 
+-- REMOVE ME --
+import Debug.Trace as T
+
 import Grid
 import Hexagon
 
@@ -41,27 +44,6 @@ derive newtype instance functorRandom :: Functor Random
 derive newtype instance applyRandom :: Apply Random
 derive newtype instance applicativeRandom :: Applicative Random
 derive newtype instance monadRandom :: Monad Random
-
-random :: Random Number
-random = wrap $ liftF $ Random id
-
-randomBool :: Random Boolean
-randomBool = wrap $ liftF $ RandomBool id
-
-randomInt :: Int -> Int -> Random Int
-randomInt min max = wrap $ liftF $ RandomInt min max id
-
-randomRange :: Number -> Number -> Random Number
-randomRange min max = wrap $ liftF $ RandomRange min max id
-
-runRandom :: forall e. Random ~> Eff (random :: RANDOM | e)
-runRandom = foldFree interpret <<< unwrap
-  where
-  interpret :: forall e. RandomF ~> Eff (random :: RANDOM | e)
-  interpret (Random f) = f <$> R.random
-  interpret (RandomBool f) = f <$> R.randomBool
-  interpret (RandomInt min max f) = f <$> R.randomInt min max
-  interpret (RandomRange min max f) = f <$> R.randomRange min max
 
 instance monadGenRandom :: MonadGen Random where
   chooseBool = randomBool

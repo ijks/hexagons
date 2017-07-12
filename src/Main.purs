@@ -5,7 +5,7 @@ import Prelude
 import Color (black)
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE)
-import Control.Monad.Eff.Unsafe (unsafePerformEff)
+import Control.Monad.Eff.Random (RANDOM, randomInt)
 import Data.Foldable (foldMap)
 import Data.Int (toNumber)
 import Data.List (List)
@@ -16,9 +16,11 @@ import Graphics.Drawing (closed, path) as Shape
 import Graphics.Drawing (scale, translate) as Drawing
 import Graphics.Canvas (CANVAS)
 import Math (cos, sin)
+import Test.QuickCheck.Gen (Gen, evalGen)
+import Test.QuickCheck.LCG (Seed, mkSeed)
 
 import DOM (DOM)
-import Flare (UI, intSlider, numberSlider)
+import Flare (UI, int, intSlider, numberSlider)
 import Flare.Drawing (runFlareDrawing)
 import Signal.Channel (CHANNEL)
 
@@ -27,26 +29,31 @@ import Generate
 import Grid
 import Hexagon
 
-main :: Eff (console :: CONSOLE, dom :: DOM, channel :: CHANNEL, canvas :: CANVAS) Unit
-main = runFlareDrawing "controls" "drawing" $ ui
+import Data.Set as Set
 
-ui :: forall e. UI e Drawing
-ui = drawing
-  <$> intSlider "Width" 0 20 10
+main :: Eff (console :: CONSOLE, dom :: DOM, channel :: CHANNEL, canvas :: CANVAS, random :: RANDOM) Unit
+main = do
+  initialSeed <- randomInt bottom top
+  runFlareDrawing "controls" "drawing" $ ui initialSeed
+
+ui :: forall e. Int -> UI e Drawing
+ui initialSeed = drawing
+  <$> int "Seed" initialSeed
+  <*> intSlider "Width" 0 20 10
   <*> intSlider "Height" 0 20 10
   <*> numberSlider "X Offset" (-10.0) 10.0 0.1 0.0
   <*> numberSlider "Y Offset" (-10.0) 10.0 0.1 0.0
-  <*> numberSlider "Scale" 1.0 80.0 0.1 1.0
+  <*> numberSlider "Scale" 1.0 80.0 0.1 20.0
 
-drawing :: Int -> Int -> Number -> Number -> Number -> Drawing
-drawing w h x y s = Drawing.scale s s
+drawing :: Int -> Int -> Int -> Number -> Number -> Number -> Drawing
+drawing seed w h x y s = Drawing.scale s s
   $ Drawing.translate x y
   $ drawGrid (const mempty) drawWalls
-  -- FIXME: Don't do this!!!
-  $ unsafePerformEff $ runRandom $ maze shape (Hex 0 0)
+  $ evalGen (maze shape (Hex 0 0)) genState
   where
     drawHex = const $ draw (lineColor black <> lineWidth 0.1) $ hex 0.0 0.0 1.0
     drawBool = if _ then draw (fillColor black) $ hex 0.0 0.0 0.5 else mempty
+    genState = { newSeed: mkSeed seed, size: 10 }
     shape = fromCoordinates (const unit) $ square Even { width: w, height: h }
     drawWalls =
       foldMap
@@ -55,7 +62,6 @@ drawing w h x y s = Drawing.scale s s
         <<< map (\a -> { x: cos a, y: sin a })
         <<< angles
         )
-
 
 drawGrid :: forall a. (Hex Int -> Drawing) -> (a -> Drawing) -> Grid a -> Drawing
 drawGrid drawHex drawContents grid =
